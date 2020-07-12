@@ -1,6 +1,6 @@
 # グーグルカレンダー クローンアプリ
 https://github.com/youdeee/calendar_clone_on_react
-をphoenixにサーバーで乗せて動かせるようにしたもの。
+をサーバーで動かせるようにphoenixに移植したもの。
 
 ## TODO
 - デプロイできるように設定する
