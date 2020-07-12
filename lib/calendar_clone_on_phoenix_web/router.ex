@@ -11,43 +11,56 @@ defmodule CalendarCloneOnPhoenixWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+    plug :protect_from_forgery
   end
 
-  pipeline :maybe_browser_auth do
-    plug(Guardian.Plug.VerifySession)
-    plug(Guardian.Plug.VerifyHeader, realm: "Bearer")
-    plug(Guardian.Plug.LoadResource)
+  pipeline :login_session do
+    plug CalendarCloneOnPhoenix.Accounts.LoginSessionPipeline
   end
 
-  pipeline :ensure_authed_access do
-    plug(Guardian.Plug.EnsureAuthenticated, %{"type" => "access", handler: CalendarCloneOnPhoenix.HttpErrorHandler})
+  pipeline :ensure_auth do
+    plug CalendarCloneOnPhoenix.Accounts.EnsureAuthPipeline
+  end
+
+  pipeline :ensure_not_auth do
+    plug CalendarCloneOnPhoenix.Accounts.EnsureNotAuthPipeline
+  end
+
+  pipeline :calendar_layout do
+    plug :put_layout, {CalendarCloneOnPhoenixWeb.LayoutView, :calendar}
   end
 
   scope "/", CalendarCloneOnPhoenixWeb do
-    pipe_through :browser
+    pipe_through([:browser])
 
     get "/", PageController, :index
+    get("/logout", SessionController, :delete)
+  end
+
+  scope "/", CalendarCloneOnPhoenixWeb do
+    pipe_through([:browser, :login_session, :ensure_not_auth])
 
     resources "/users", UserController, only: [:new, :create]
+    get("/login", SessionController, :new)
+    post("/login", SessionController, :create)
   end
 
   scope "/", CalendarCloneOnPhoenixWeb do
-    pipe_through([:browser, :maybe_browser_auth])
-
-    get("/login", LoginController, :new)
-    post("/login", LoginController, :create)
-    delete("/login", LoginController, :delete)
-  end
-
-  scope "/", CalendarCloneOnPhoenixWeb do
-    pipe_through([:browser, :maybe_browser_auth, :ensure_authed_access])
+    pipe_through([:browser, :login_session, :ensure_auth, :calendar_layout])
 
     resources "/app/calendar", CalendarController, only: [:index]
   end
 
+  scope "/api", CalendarCloneOnPhoenixWeb do
+    pipe_through([:api, :login_session, :ensure_auth])
+
+    resources "/events", EventController, only: [:index, :create, :update, :delete]
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", CalendarCloneOnPhoenixWeb do
-  #   pipe_through :api
+
   # end
 
   # Enables LiveDashboard only for development

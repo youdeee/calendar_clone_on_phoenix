@@ -24,6 +24,14 @@ defmodule CalendarCloneOnPhoenixWeb do
       import Plug.Conn
       import CalendarCloneOnPhoenixWeb.Gettext
       alias CalendarCloneOnPhoenixWeb.Router.Helpers, as: Routes
+
+      def action(conn, _) do
+        if Map.has_key?(conn.assigns, :current_user) do
+          apply(__MODULE__, action_name(conn), [conn, conn.params, conn.assigns.current_user])
+        else
+          apply(__MODULE__, action_name(conn), [conn, conn.params])
+        end
+      end
     end
   end
 

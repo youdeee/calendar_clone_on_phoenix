@@ -14,7 +14,11 @@ config :calendar_clone_on_phoenix,
 config :calendar_clone_on_phoenix, CalendarCloneOnPhoenixWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Cll1nGst1HoM1SaYtiF/Ns3lnHCin4I8wCvD5NtESw5SnuSoOGIFbtZG/dgFi0cQ",
-  render_errors: [view: CalendarCloneOnPhoenixWeb.ErrorView, accepts: ~w(html json), layout: false],
+  render_errors: [
+    view: CalendarCloneOnPhoenixWeb.ErrorView,
+    accepts: ~w(html json),
+    layout: false
+  ],
   pubsub_server: CalendarCloneOnPhoenix.PubSub,
   live_view: [signing_salt: "3etPx1tM"]
 
@@ -26,10 +30,9 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :guardian, Guardian,
+config :calendar_clone_on_phoenix, CalendarCloneOnPhoenix.Accounts.Guardian,
   issuer: "CalendarCloneOnPhoenix",
-  secret_key: Mix.env(),
-  serializer: CalendarCloneOnPhoenix.GuardianSerializer
+  secret_key: "WPVapiO9Ywcz/z2v9u5q3NK4Ib1GmwddG8cKl8jeJh+O5GVvCvkWBx7fAvL6I57h"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
